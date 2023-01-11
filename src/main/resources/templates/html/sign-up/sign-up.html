@@ -17,33 +17,35 @@
 </head>
 
 <body>
-    <div th:replace="inc/header :: headerFragment"></div>
+    <div th:replace="~{inc/header :: headerFragment}"></div>
         
     <main>
-        <form action="/member/signup" method="post">
+        <form th:action="@{/member/signup}" th:object="${member}" method="post">
             <span class="sign-title">
                 회원가입
             </span>
+
+            <div th:replace="~{html/error/form_errors :: formErrorsFragment}"></div>
     
             <div class="input">
                 <span>이메일</span>
-                <input type="text" placeholder="abcd123@gmail.com" name="email" required pattern=".*\S.*">
+                <input type="text" placeholder="you@example.com" name="email" th:field="*{email}" >
             </div>
             <div class="input">
                 <span>닉네임</span>
-                <input type="text" placeholder="홍길동" name="nickName"  required pattern=".*\S.*">
+                <input type="text" placeholder="○○○○" name="nickName" th:field="*{nickName}">
             </div>
             <div class="input">
-                <span>패스워드</span>
-                <input type="text" placeholder="password" name="password"  required pattern=".*\S.*">
+                <span>비밀번호</span>
+                <input type="password" placeholder="password" name="password" th:field="*{password}" >
             </div>
             <div class="input">
-                <span>패스워드 확인</span>
-                <input type="text" placeholder="password" required pattern=".*\S.*">
+                <span>비밀번호 확인</span>
+                <input type="password" placeholder="password" name="passwordCK" th:field="*{passwordCK}" >
             </div>
             <div class="input">
                 <span>핸드폰 번호</span>
-                <input type="text" placeholder="000-0000-0000" name="phoneNum"  required pattern=".*\S.*">
+                <input type="text" placeholder="000-0000-0000" name="phoneNum" th:field="*{phoneNum}" >
             </div>
     
             <div class="sign-up-form-btn">

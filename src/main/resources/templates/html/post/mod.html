@@ -14,7 +14,7 @@
 
 </head>
 <body>
-    <div th:replace="inc/header :: headerFragment"></div>
+    <div th:replace="~{inc/header :: headerFragment}"></div>
 
     <div th:each="boarditem:${post}">
         <form method="post">

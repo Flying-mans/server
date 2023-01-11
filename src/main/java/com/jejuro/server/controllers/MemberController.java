@@ -4,8 +4,10 @@ import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,7 @@ import com.jejuro.server.service.AlarmService;
 import com.jejuro.server.service.MemberService;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/member")
@@ -34,13 +37,16 @@ public class MemberController {
 	@Autowired
 	private AlarmService alarmService;
 
-	
 	@GetMapping("signup")
-	public String siginup(){
+	public String siginup(Member member){
 		return "html/sign-up/sign-up";
 	}
 
 	/**
+	 * @Valid
+	 * 유효성 겅사를 위해
+	 * spring-boot-starter-validation dependency 주입 후 사용 가능
+	 * 
 	 * @ModelAttribute 
 	 * html name과 entity의 필드가 동일하다면 스프링이 setter method를 호출하면서 값을 알아서 담아줌
 	 *
@@ -49,9 +55,30 @@ public class MemberController {
 	 * @return 로그인 페이지
 	 */
 	@PostMapping("signup")
-	public String signup(@ModelAttribute Member member){
+	public String signup(@Valid @ModelAttribute Member member, BindingResult bindingResult){
 		
-		service.add(member);
+		if(bindingResult.hasErrors()) {
+			return "html/sign-up/sign-up";
+		}
+
+		if(!member.getPassword().equals(member.getPasswordCK())) {
+			bindingResult.rejectValue("passwordCK", "passwordInCorrect", "패스워드가 일치하지 않습니다.");
+			return "html/sign-up/sign-up";
+		}
+
+		try {
+			service.add(member);
+		} catch (DataIntegrityViolationException e) {
+			e.printStackTrace();
+			bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
+			return "html/sign-up/sign-up";
+		}catch(Exception e) {
+			e.printStackTrace();
+			bindingResult.reject("signupFailed", e.getMessage());
+			return "html/sign-up/sign-up";
+		}
+
+		
 
 		return "html/login/login";
 	}
